@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tech Vibe - 一日時間視覺化工具</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- 頂部欄 -->
+        <header class="app-header">
+            <h1>Tech Vibe - 一日時間視覺化工具</h1>
+        </header>
+
+        <!-- 任務建立區 -->
+        <div class="task-creation-section">
+            <div class="task-creation-card">
+                <h2>新增任務</h2>
+                <div class="creation-controls">
+                    <input type="text" id="taskName" placeholder="輸入任務名稱..." class="task-input">
+                    <select id="taskDuration" class="duration-select">
+                        <option value="0.5">30 分鐘</option>
+                        <option value="1">1 小時</option>
+                        <option value="1.5">1.5 小時</option>
+                        <option value="2" selected>2 小時</option>
+                        <option value="3">3 小時</option>
+                        <option value="4">4 小時</option>
+                    </select>
+                    <button id="addTaskBtn" class="add-button">新增</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 主內容區 -->
+        <main class="main-content">
+            <!-- 左側：待放置任務池 -->
+            <section class="task-pool-section">
+                <h3>待放置的任務</h3>
+                <div id="taskPool" class="task-pool">
+                    <div class="empty-state">
+                        拖曳任務到右側<br>開始規劃一天
+                    </div>
+                </div>
+            </section>
+
+            <!-- 右側：今日容器 -->
+            <section class="day-container-section">
+                <h3>今日規劃</h3>
+                <div class="reference-lines">
+                    <div class="reference-line" style="top: 33.3%;">
+                        <span class="reference-label">8h</span>
+                    </div>
+                    <div class="reference-line" style="top: 66.6%;">
+                        <span class="reference-label">16h</span>
+                    </div>
+                    <div class="reference-line" style="top: 100%;">
+                        <span class="reference-label">24h</span>
+                    </div>
+                </div>
+                <div id="dayContainer" class="day-container">
+                    <div class="empty-state">
+                        拖曳任務到這裡
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
