@@ -31,7 +31,7 @@ class ReferenceLines extends StatelessWidget {
             decoration: BoxDecoration(
               border: Border(
                 top: BorderSide(
-                  color: AppConstants.referenceLineColor,
+                  color: AppConstants.accentCyan.withOpacity(0.3),
                   width: 1,
                   style: BorderStyle.solid,
                 ),
@@ -44,17 +44,18 @@ class ReferenceLines extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: AppConstants.darkCardBg,
                 border: Border.all(
-                  color: AppConstants.referenceLineColor,
+                  color: AppConstants.accentCyan.withOpacity(0.5),
                   width: 0.5,
                 ),
+                borderRadius: BorderRadius.circular(3),
               ),
               child: Text(
                 '${hours.toStringAsFixed(0)}h',
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 10,
-                  color: AppConstants.referenceLineColor,
+                  color: AppConstants.accentCyan,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -65,3 +66,4 @@ class ReferenceLines extends StatelessWidget {
     );
   }
 }
+

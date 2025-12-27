@@ -21,7 +21,37 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: AppConstants.appTitle,
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        brightness: Brightness.dark,
+        primaryColor: AppConstants.accentPurple,
+        scaffoldBackgroundColor: AppConstants.darkBg,
+        appBarTheme: const AppBarTheme(
+          backgroundColor: AppConstants.darkCardBg,
+          elevation: 0,
+          centerTitle: true,
+          titleTextStyle: TextStyle(
+            color: AppConstants.darkText,
+            fontSize: 20,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        inputDecorationTheme: InputDecorationTheme(
+          fillColor: AppConstants.darkAccent,
+          filled: true,
+          border: OutlineInputBorder(
+            borderSide: const BorderSide(color: AppConstants.darkBorder),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderSide: const BorderSide(color: AppConstants.darkBorder),
+            borderRadius: BorderRadius.circular(8),
+          ),
+        ),
+        textTheme: const TextTheme(
+          bodyLarge: TextStyle(color: AppConstants.darkText),
+          bodyMedium: TextStyle(color: AppConstants.darkText),
+          titleLarge: TextStyle(color: AppConstants.darkText),
+          titleMedium: TextStyle(color: AppConstants.darkText),
+        ),
         useMaterial3: true,
       ),
       home: const HomeScreen(),

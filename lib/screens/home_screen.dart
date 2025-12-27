@@ -5,6 +5,7 @@ import '../widgets/task_creation.dart';
 import '../widgets/task_pool.dart';
 import '../widgets/day_container.dart';
 import '../widgets/reference_lines.dart';
+import '../widgets/countdowns_section.dart';
 import '../utils/constants.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -25,11 +26,11 @@ class HomeScreen extends StatelessWidget {
             padding: const EdgeInsets.all(16.0),
             child: TaskCreation(),
           ),
-          // 主內容區（左：任務池，右：今日容器）
+          // 主內容區（左：倒數+任務池，右：今日容器）
           Expanded(
             child: Row(
               children: [
-                // 左側：任務池
+                // 左側：倒數計時 + 任務池
                 Expanded(
                   flex: 1,
                   child: Container(
@@ -37,6 +38,10 @@ class HomeScreen extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        // 倒數計時區塊
+                        const CountdownsSection(),
+                        const SizedBox(height: 24),
+                        // 任務池
                         Text(
                           AppConstants.tasksInPoolLabel,
                           style: Theme.of(context).textTheme.titleMedium,
@@ -49,7 +54,7 @@ class HomeScreen extends StatelessWidget {
                     ),
                   ),
                 ),
-                // 右側：今日容器
+                // 右側：今日容器 + 參考線
                 Expanded(
                   flex: 1,
                   child: Container(

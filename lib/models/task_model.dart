@@ -5,12 +5,16 @@ class Task {
   final String name;
   final double duration; // 以小時為單位
   final DateTime createdAt;
+  final String memo; // 備註
+  final bool isCompleted; // 完成狀態
 
   Task({
     String? id,
     required this.name,
     required this.duration,
     DateTime? createdAt,
+    this.memo = '',
+    this.isCompleted = false,
   })  : id = id ?? const Uuid().v4(),
         createdAt = createdAt ?? DateTime.now();
 
@@ -26,6 +30,8 @@ class Task {
       'name': name,
       'duration': duration,
       'createdAt': createdAt.toIso8601String(),
+      'memo': memo,
+      'isCompleted': isCompleted,
     };
   }
 
@@ -36,6 +42,8 @@ class Task {
       name: json['name'] as String,
       duration: (json['duration'] as num).toDouble(),
       createdAt: DateTime.parse(json['createdAt'] as String),
+      memo: json['memo'] as String? ?? '',
+      isCompleted: json['isCompleted'] as bool? ?? false,
     );
   }
 
@@ -45,12 +53,16 @@ class Task {
     String? name,
     double? duration,
     DateTime? createdAt,
+    String? memo,
+    bool? isCompleted,
   }) {
     return Task(
       id: id ?? this.id,
       name: name ?? this.name,
       duration: duration ?? this.duration,
       createdAt: createdAt ?? this.createdAt,
+      memo: memo ?? this.memo,
+      isCompleted: isCompleted ?? this.isCompleted,
     );
   }
 

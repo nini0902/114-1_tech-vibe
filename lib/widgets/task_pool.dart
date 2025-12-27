@@ -14,31 +14,57 @@ class TaskPool extends StatelessWidget {
       builder: (context, taskProvider, child) {
         final tasksInPool = taskProvider.tasksInPool;
 
-        if (tasksInPool.isEmpty) {
-          return Center(
-            child: Text(
-              '還沒有待放置的任務\n拖曳任務到這裡移除',
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Colors.grey,
-                  ),
-            ),
-          );
-        }
-
-        return GridView.builder(
-          gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-            maxCrossAxisExtent: 150,
-            crossAxisSpacing: 12,
-            mainAxisSpacing: 12,
-          ),
-          itemCount: tasksInPool.length,
-          itemBuilder: (context, index) {
-            final task = tasksInPool[index];
-            return TaskBlock(task: task, isInContainer: false);
+        return DragTarget<Task>(
+          onAcceptWithDetails: (details) {
+            // 支援從容器拖回任務池
+            context
+                .read<TaskProvider>()
+                .moveTaskOutOfContainer(details.data.id);
+          },
+          builder: (context, candidateData, rejectedData) {
+            return Container(
+              decoration: BoxDecoration(
+                border: Border.all(
+                  color: candidateData.isNotEmpty
+                      ? AppConstants.accentCyan
+                      : AppConstants.darkBorder,
+                  width: 2,
+                ),
+                borderRadius: BorderRadius.circular(8),
+                color: AppConstants.darkAccent.withOpacity(0.5),
+              ),
+              child: tasksInPool.isEmpty
+                  ? Center(
+                      child: Text(
+                        '還沒有待放置的任務\n從右側拖曳任務回到這裡',
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: const Color(0xFF666666),
+                        ),
+                      ),
+                    )
+                  : GridView.builder(
+                      gridDelegate:
+                          const SliverGridDelegateWithMaxCrossAxisExtent(
+                        maxCrossAxisExtent: 150,
+                        crossAxisSpacing: 12,
+                        mainAxisSpacing: 12,
+                      ),
+                      padding: const EdgeInsets.all(8),
+                      itemCount: tasksInPool.length,
+                      itemBuilder: (context, index) {
+                        final task = tasksInPool[index];
+                        return TaskBlock(task: task, isInContainer: false);
+                      },
+                    ),
+            );
+          },
+          onWillAcceptWithDetails: (details) {
+            return true;
           },
         );
       },
     );
   }
 }
+

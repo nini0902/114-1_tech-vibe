@@ -24,13 +24,15 @@ class DayContainer extends StatelessWidget {
             return Container(
               decoration: BoxDecoration(
                 border: Border.all(
-                  color: Colors.grey.shade400,
+                  color: candidateData.isNotEmpty
+                      ? AppConstants.accentCyan
+                      : AppConstants.darkBorder,
                   width: 2,
                 ),
                 borderRadius: BorderRadius.circular(8),
-                color: candidateData.isNotEmpty
-                    ? Colors.blue.shade50
-                    : AppConstants.containerBackgroundColor,
+                color: AppConstants.darkAccent.withOpacity(
+                  candidateData.isNotEmpty ? 0.8 : 0.3,
+                ),
               ),
               child: tasksInContainer.isEmpty
                   ? Center(
@@ -39,60 +41,18 @@ class DayContainer extends StatelessWidget {
                         textAlign: TextAlign.center,
                         style:
                             Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                  color: Colors.grey,
-                                ),
+                          color: const Color(0xFF666666),
+                        ),
                       ),
                     )
                   : SingleChildScrollView(
                       child: Column(
                         children: [
                           for (int i = 0; i < tasksInContainer.length; i++)
-                            Draggable<Task>(
-                              data: tasksInContainer[i],
-                              feedback: Material(
-                                child: Container(
-                                  width: 200,
-                                  height: 80,
-                                  decoration: BoxDecoration(
-                                    color:
-                                        AppConstants.taskBlockColor.withOpacity(0.9),
-                                    border: Border.all(
-                                      color:
-                                          AppConstants.taskBlockBorderColor,
-                                    ),
-                                    borderRadius: BorderRadius.circular(8),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.black.withOpacity(0.3),
-                                        blurRadius: 8,
-                                      ),
-                                    ],
-                                  ),
-                                  child: Center(
-                                    child: Text(
-                                      tasksInContainer[i].name,
-                                      textAlign: TextAlign.center,
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              onDragCompleted: () {
-                                // 拖曳完成但沒有放到有效地點
-                              },
-                              childWhenDragging: Opacity(
-                                opacity: 0.5,
-                                child: SizedBox(
-                                  height: tasksInContainer[i].duration *
-                                      AppConstants.baseUnit,
-                                  width: double.infinity,
-                                  child: TaskBlock(
-                                    task: tasksInContainer[i],
-                                    isInContainer: true,
-                                  ),
-                                ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 4,
                               ),
                               child: SizedBox(
                                 height: tasksInContainer[i].duration *
@@ -117,3 +77,4 @@ class DayContainer extends StatelessWidget {
     );
   }
 }
+

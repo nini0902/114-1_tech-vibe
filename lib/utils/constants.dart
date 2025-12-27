@@ -12,18 +12,33 @@ class AppConstants {
   // 參考線位置（小時）
   static const List<double> referenceLineHours = [8.0, 16.0, 24.0];
 
-  // 顏色
-  static final taskBlockColor = Colors.blue.shade300;
-  static final taskBlockBorderColor = Colors.blue.shade700;
-  static final containerBackgroundColor = Colors.grey.shade100;
-  static final referenceLineColor = Colors.grey.shade400;
+  // 深色主題顏色
+  static const Color darkBg = Color(0xFF1a1a2e);
+  static const Color darkCardBg = Color(0xFF16213e);
+  static const Color darkAccent = Color(0xFF0f3460);
+  static const Color darkText = Color(0xFFe0e0e0);
+  static const Color darkBorder = Color(0xFF533483);
+  static const Color accentPurple = Color(0xFF9d4edd);
+  static const Color accentCyan = Color(0xFF3a86ff);
+
+  // 任務區塊顏色
+  static final List<Color> taskBlockColors = [
+    const Color(0xFF7209b7),
+    const Color(0xFF3a86ff),
+    const Color(0xFF06ffa5),
+    const Color(0xFFffbe0b),
+    const Color(0xFFfb5607),
+    const Color(0xFFff006e),
+  ];
 
   // 文字
-  static const String appTitle = 'Tech Vibe - 時間視覺化規劃';
+  static const String appTitle = 'Tech Vibe';
   static const String taskNameHint = '輸入任務名稱...';
+  static const String memoHint = '補充說明（選填）...';
   static const String addButtonLabel = '新增';
   static const String tasksInPoolLabel = '待放置的任務：';
   static const String todayLabel = '今日規劃：';
+  static const String countdownsLabel = '重大倒數：';
 }
 
 class DurationFormatter {

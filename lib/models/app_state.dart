@@ -1,12 +1,15 @@
 import 'task_model.dart';
+import 'countdown_model.dart';
 
 class AppState {
   final List<Task> allTasks;
   final Set<String> tasksInContainerId;
+  final List<Countdown> countdowns;
 
   AppState({
     this.allTasks = const [],
     this.tasksInContainerId = const {},
+    this.countdowns = const [],
   });
 
   // Getter：任務池中的任務（未放入容器）
@@ -26,10 +29,12 @@ class AppState {
   AppState copyWith({
     List<Task>? allTasks,
     Set<String>? tasksInContainerId,
+    List<Countdown>? countdowns,
   }) {
     return AppState(
       allTasks: allTasks ?? this.allTasks,
       tasksInContainerId: tasksInContainerId ?? this.tasksInContainerId,
+      countdowns: countdowns ?? this.countdowns,
     );
   }
 
@@ -38,6 +43,7 @@ class AppState {
     return {
       'tasks': allTasks.map((task) => task.toJson()).toList(),
       'tasksInContainerId': tasksInContainerId.toList(),
+      'countdowns': countdowns.map((cd) => cd.toJson()).toList(),
     };
   }
 
@@ -49,10 +55,16 @@ class AppState {
     final containerIds = (json['tasksInContainerId'] as List<dynamic>)
         .map((id) => id as String)
         .toSet();
+    final countdownsList = (json['countdowns'] as List<dynamic>?)
+            ?.map((item) => Countdown.fromJson(item as Map<String, dynamic>))
+            .toList() ??
+        [];
 
     return AppState(
       allTasks: tasksList,
       tasksInContainerId: containerIds,
+      countdowns: countdownsList,
     );
   }
 }
+
