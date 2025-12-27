@@ -1,513 +1,163 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tech Vibe - 日程規劃工具</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #f5f5f5;
-            height: 100vh;
-            overflow: hidden;
-        }
-
-        .app-container {
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-        }
-
-        header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 16px 24px;
-            text-align: center;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        header h1 {
-            font-size: 24px;
-        }
-
-        main {
-            display: flex;
-            flex: 1;
-            overflow: hidden;
-        }
-
-        .left-panel {
-            width: 320px;
-            background: white;
-            border-right: 1px solid #e0e0e0;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .calendar-panel {
-            padding: 16px;
-            border-bottom: 1px solid #e0e0e0;
-        }
-
-        .month-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 16px;
-        }
-
-        .month-header button {
-            width: 32px;
-            height: 32px;
-            border: 1px solid #ddd;
-            background: white;
-            cursor: pointer;
-            border-radius: 4px;
-        }
-
-        .month-header h2 {
-            font-size: 16px;
-            flex: 1;
-            text-align: center;
-        }
-
-        .weekdays {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 4px;
-            margin-bottom: 8px;
-            text-align: center;
-            font-size: 12px;
-            font-weight: 600;
-            color: #666;
-        }
-
-        .calendar {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 4px;
-        }
-
-        .calendar button {
-            aspect-ratio: 1;
-            border: 1px solid #ddd;
-            background: white;
-            cursor: pointer;
-            border-radius: 4px;
-            font-size: 13px;
-            transition: all 0.2s;
-        }
-
-        .calendar button:hover {
-            border-color: #667eea;
-            background: #f5f5f5;
-        }
-
-        .calendar button.selected {
-            background: #667eea;
-            color: white;
-            border-color: #667eea;
-            font-weight: 600;
-        }
-
-        .calendar button.other-month {
-            color: #ccc;
-            background: #fafafa;
-        }
-
-        .input-section {
-            padding: 16px;
-            background: #f8f9fa;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .input-section h3 {
-            font-size: 14px;
-            margin-bottom: 12px;
-            color: #333;
-        }
-
-        input, select {
-            width: 100%;
-            padding: 8px;
-            margin-bottom: 10px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            font-size: 13px;
-        }
-
-        input:focus, select:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
-        button.add-btn {
-            width: 100%;
-            padding: 10px;
-            background: #667eea;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-weight: 600;
-            cursor: pointer;
-            margin-top: auto;
-        }
-
-        button.add-btn:hover {
-            background: #5568d3;
-        }
-
-        .right-panel {
-            flex: 1;
-            background: white;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-
-        .schedule-header {
-            padding: 16px 24px;
-            border-bottom: 1px solid #e0e0e0;
-        }
-
-        .schedule-header h2 {
-            font-size: 18px;
-            margin-bottom: 4px;
-        }
-
-        .schedule-header p {
-            font-size: 13px;
-            color: #666;
-        }
-
-        .schedule-content {
-            flex: 1;
-            display: flex;
-            overflow: hidden;
-        }
-
-        .time-column {
-            width: 60px;
-            background: #fafafa;
-            border-right: 1px solid #e0e0e0;
-            overflow-y: auto;
-        }
-
-        .time-slot {
-            height: 60px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 11px;
-            color: #666;
-            border-bottom: 1px solid #eee;
-            font-weight: 600;
-        }
-
-        .grid-column {
-            flex: 1;
-            position: relative;
-            overflow-y: auto;
-            background-image:
-                linear-gradient(to right, #f0f0f0 1px, transparent 1px),
-                linear-gradient(to bottom, #f0f0f0 1px, transparent 1px);
-            background-size: 100% 60px, 100% 60px;
-        }
-
-        .task-block {
-            position: absolute;
-            left: 4px;
-            right: 4px;
-            background: linear-gradient(135deg, #667eea 0%, #5568d3 100%);
-            color: white;
-            border-radius: 4px;
-            padding: 6px;
-            font-size: 12px;
-            font-weight: 600;
-            border: 1px solid #4a5fcf;
-            cursor: pointer;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            overflow: hidden;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        .task-block:hover {
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        }
-
-        .task-block button {
-            background: none;
-            border: none;
-            color: white;
-            cursor: pointer;
-            font-size: 16px;
-            padding: 0;
-            margin-left: 4px;
-        }
-
-        .empty-msg {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            color: #ccc;
-            font-size: 14px;
-        }
-    </style>
+<meta charset="utf-8">
+<title>Tech Vibe</title>
+<style>
+body{margin:0;padding:0;font-family:Arial;background:#f5f5f5}
+.header{background:#667eea;color:white;padding:16px;text-align:center}
+.main{display:flex;height:calc(100vh - 60px);margin-top:60px}
+.left{width:300px;background:white;padding:16px;overflow-y:auto;border-right:1px solid #ddd}
+.right{flex:1;background:white;display:flex;flex-direction:column}
+.calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin:16px 0}
+button{padding:8px;border:1px solid #ddd;background:white;cursor:pointer;width:100%;margin:4px 0}
+input,select{width:100%;padding:8px;margin:8px 0;border:1px solid #ddd}
+.btn-add{background:#667eea;color:white;border:none}
+.schedule-head{padding:16px;border-bottom:1px solid #ddd}
+.schedule{display:flex;flex:1}
+.times{width:60px;background:#f9f9f9;border-right:1px solid #ddd;overflow-y:auto}
+.time{height:60px;display:flex;align-items:center;justify-content:center;font-size:11px;border-bottom:1px solid #eee}
+.grid{flex:1;position:relative;overflow-y:auto;background:linear-gradient(to bottom,#f0f0f0 1px,transparent 1px);background-size:100% 60px}
+.task{position:absolute;left:4px;right:4px;background:#667eea;color:white;padding:4px;border-radius:3px;font-size:12px;display:flex;justify-content:space-between}
+</style>
 </head>
 <body>
-    <div class="app-container">
-        <header>
-            <h1>Tech Vibe - 日程規劃工具</h1>
-        </header>
 
-        <main>
-            <div class="left-panel">
-                <div class="calendar-panel">
-                    <div class="month-header">
-                        <button onclick="prevMonth()">&lt;</button>
-                        <h2 id="monthDisplay">2024年12月</h2>
-                        <button onclick="nextMonth()">&gt;</button>
-                    </div>
-                    <div class="weekdays">
-                        <div>日</div><div>一</div><div>二</div><div>三</div>
-                        <div>四</div><div>五</div><div>六</div>
-                    </div>
-                    <div class="calendar" id="calendarDays"></div>
-                </div>
+<div class="header"><h1 style="margin:0">Tech Vibe 日程規劃</h1></div>
 
-                <div class="input-section">
-                    <h3>新增任務</h3>
-                    <input type="text" id="taskName" placeholder="任務名稱">
-                    <select id="startTime"></select>
-                    <select id="duration">
-                        <option value="0.5">0.5小時</option>
-                        <option value="1">1小時</option>
-                        <option value="1.5">1.5小時</option>
-                        <option value="2" selected>2小時</option>
-                        <option value="3">3小時</option>
-                        <option value="4">4小時</option>
-                    </select>
-                    <button class="add-btn" onclick="addTask()">新增任務</button>
-                </div>
-            </div>
+<div class="main">
+<div class="left">
+<div>
+<div style="display:flex;justify-content:space-between;margin-bottom:16px">
+<button onclick="pm()" style="width:40px">←</button>
+<span id="ml" style="font-weight:bold;flex:1;text-align:center">月份</span>
+<button onclick="nm()" style="width:40px">→</button>
+</div>
+<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:16px;font-size:12px;font-weight:bold;text-align:center">
+<div>日</div><div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div>六</div>
+</div>
+<div id="cal" class="calendar"></div>
+</div>
 
-            <div class="right-panel">
-                <div class="schedule-header">
-                    <h2 id="dateDisplay">今日</h2>
-                    <p id="hoursDisplay">規劃時數：0 小時</p>
-                </div>
+<hr>
 
-                <div class="schedule-content">
-                    <div class="time-column" id="timeColumn"></div>
-                    <div class="grid-column" id="gridColumn"></div>
-                </div>
-            </div>
-        </main>
-    </div>
+<div>
+<h3>新增任務</h3>
+<input type="text" id="tn" placeholder="名稱">
+<select id="st"></select>
+<select id="dur">
+<option value="0.5">0.5小時</option>
+<option value="1">1小時</option>
+<option value="1.5">1.5小時</option>
+<option value="2" selected>2小時</option>
+<option value="3">3小時</option>
+<option value="4">4小時</option>
+</select>
+<button class="btn-add" onclick="add()">新增</button>
+</div>
+</div>
 
-    <script>
-        let currentDate = new Date();
-        let tasks = [];
+<div class="right">
+<div class="schedule-head">
+<h2 id="dl" style="margin:0">今日</h2>
+<p id="hl" style="margin:8px 0 0 0;font-size:13px;color:#666">0小時</p>
+</div>
 
-        // 初始化
-        function init() {
-            loadTasks();
-            renderCalendar();
-            renderTimeColumn();
-            renderSchedule();
-            initStartTimeSelect();
-        }
+<div class="schedule">
+<div id="tc" class="times"></div>
+<div id="gc" class="grid"></div>
+</div>
+</div>
+</div>
 
-        // 初始化開始時間選擇器
-        function initStartTimeSelect() {
-            const select = document.getElementById('startTime');
-            select.innerHTML = '';
-            for (let h = 0; h < 24; h++) {
-                for (let m = 0; m < 60; m += 30) {
-                    const time = String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0');
-                    const opt = document.createElement('option');
-                    opt.value = time;
-                    opt.textContent = time;
-                    select.appendChild(opt);
-                }
-            }
-            select.value = '09:00';
-        }
+<script>
+let t=[],d=new Date();
+function init(){
+  let s=localStorage.getItem('t');
+  if(s)t=JSON.parse(s);
+  ren();
+}
+function ren(){
+  renm();rcal();rtime();rsch();
+}
+function renm(){
+  document.getElementById('ml').textContent=d.getFullYear()+'年'+(d.getMonth()+1)+'月';
+}
+function rcal(){
+  let y=d.getFullYear(),m=d.getMonth(),f=new Date(y,m,1).getDay(),n=new Date(y,m+1,0).getDate();
+  let c=document.getElementById('cal');
+  c.innerHTML='';
+  for(let i=0;i<f;i++){let e=document.createElement('div');c.appendChild(e);}
+  for(let j=1;j<=n;j++){
+    let b=document.createElement('button');
+    b.textContent=j;
+    let z=new Date(y,m,j).toISOString().split('T')[0];
+    if(z===d.toISOString().split('T')[0])b.style.background='#667eea',b.style.color='white';
+    b.onclick=()=>{d=new Date(y,m,j);ren();};
+    c.appendChild(b);
+  }
+}
+function rtime(){
+  let c=document.getElementById('tc');
+  c.innerHTML='';
+  for(let h=0;h<24;h++){
+    let e=document.createElement('div');
+    e.className='time';
+    e.textContent=(h<10?'0':'')+h+':00';
+    c.appendChild(e);
+  }
+}
+function rsch(){
+  let z=d.toISOString().split('T')[0];
+  document.getElementById('dl').textContent=d.toLocaleDateString('zh-Hant',{year:'numeric',month:'long',day:'numeric',weekday:'long'});
+  let ts=t.filter(x=>x.z===z);
+  let h=ts.reduce((a,x)=>a+x.dur,0);
+  document.getElementById('hl').textContent=h+'小時';
+  let g=document.getElementById('gc');
+  g.innerHTML='';
+  ts.forEach(x=>{
+    let [hh,mm]=x.tm.split(':').map(Number);
+    let tp=(hh*60+mm)/30*60/2;
+    let ht=x.dur*30;
+    let e=document.createElement('div');
+    e.className='task';
+    e.style.top=tp+'px';
+    e.style.height=ht+'px';
+    e.innerHTML='<span>'+x.n+'</span><button style="background:none;border:none;color:white;cursor:pointer" onclick="del('+x.id+')">×</button>';
+    g.appendChild(e);
+  });
+}
+function initst(){
+  let s=document.getElementById('st');
+  for(let h=0;h<24;h++){
+    for(let m=0;m<60;m+=30){
+      let tm=(h<10?'0':'')+h+':'+(m<10?'0':'')+m;
+      let o=document.createElement('option');
+      o.value=tm;
+      o.textContent=tm;
+      s.appendChild(o);
+    }
+  }
+  s.value='09:00';
+}
+function add(){
+  let n=document.getElementById('tn').value;
+  if(!n)return alert('輸入名稱');
+  let x={id:Date.now(),n:n,z:d.toISOString().split('T')[0],tm:document.getElementById('st').value,dur:parseFloat(document.getElementById('dur').value)};
+  t.push(x);
+  localStorage.setItem('t',JSON.stringify(t));
+  document.getElementById('tn').value='';
+  rsch();
+}
+function del(i){
+  t=t.filter(x=>x.id!==i);
+  localStorage.setItem('t',JSON.stringify(t));
+  rsch();
+}
+function pm(){d.setMonth(d.getMonth()-1);ren();}
+function nm(){d.setMonth(d.getMonth()+1);ren();}
+window.addEventListener('load',()=>{initst();init();});
+</script>
 
-        // 月曆渲染
-        function renderCalendar() {
-            const year = currentDate.getFullYear();
-            const month = currentDate.getMonth();
-
-            document.getElementById('monthDisplay').textContent = year + '年' + (month + 1) + '月';
-
-            const firstDay = new Date(year, month, 1).getDay();
-            const daysInMonth = new Date(year, month + 1, 0).getDate();
-            const cal = document.getElementById('calendarDays');
-            cal.innerHTML = '';
-
-            // 前月灰色日期
-            for (let i = 0; i < firstDay; i++) {
-                const btn = document.createElement('button');
-                btn.textContent = new Date(year, month, -i).getDate();
-                btn.className = 'other-month';
-                btn.disabled = true;
-                cal.appendChild(btn);
-            }
-
-            // 本月日期
-            const today = new Date();
-            for (let day = 1; day <= daysInMonth; day++) {
-                const btn = document.createElement('button');
-                btn.textContent = day;
-                const checkDate = new Date(year, month, day);
-                const dateStr = checkDate.toISOString().split('T')[0];
-                if (dateStr === currentDate.toISOString().split('T')[0]) {
-                    btn.className = 'selected';
-                }
-                btn.onclick = () => selectDate(dateStr);
-                cal.appendChild(btn);
-            }
-
-            // 次月灰色日期
-            const totalCells = cal.children.length;
-            for (let i = 1; i <= 42 - totalCells; i++) {
-                const btn = document.createElement('button');
-                btn.textContent = i;
-                btn.className = 'other-month';
-                btn.disabled = true;
-                cal.appendChild(btn);
-            }
-        }
-
-        function prevMonth() {
-            currentDate.setMonth(currentDate.getMonth() - 1);
-            renderCalendar();
-        }
-
-        function nextMonth() {
-            currentDate.setMonth(currentDate.getMonth() + 1);
-            renderCalendar();
-        }
-
-        function selectDate(dateStr) {
-            const date = new Date(dateStr);
-            currentDate = date;
-            renderCalendar();
-            renderSchedule();
-        }
-
-        // 時間列渲染
-        function renderTimeColumn() {
-            const col = document.getElementById('timeColumn');
-            col.innerHTML = '';
-            for (let h = 0; h < 24; h++) {
-                const div = document.createElement('div');
-                div.className = 'time-slot';
-                div.textContent = String(h).padStart(2, '0') + ':00';
-                col.appendChild(div);
-            }
-        }
-
-        // 日程表渲染
-        function renderSchedule() {
-            const dateStr = currentDate.toISOString().split('T')[0];
-            const dateDisplay = currentDate.toLocaleDateString('zh-Hant', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-                weekday: 'long'
-            });
-            document.getElementById('dateDisplay').textContent = dateDisplay;
-
-            const dayTasks = tasks.filter(t => t.date === dateStr);
-            const totalHours = dayTasks.reduce((sum, t) => sum + t.duration, 0);
-            document.getElementById('hoursDisplay').textContent = '規劃時數：' + totalHours + ' 小時';
-
-            const grid = document.getElementById('gridColumn');
-            grid.innerHTML = '';
-
-            if (dayTasks.length === 0) {
-                const msg = document.createElement('div');
-                msg.className = 'empty-msg';
-                msg.textContent = '點擊左側新增任務';
-                grid.appendChild(msg);
-                return;
-            }
-
-            dayTasks.forEach(task => {
-                const block = document.createElement('div');
-                block.className = 'task-block';
-                const topPx = (parseInt(task.time.split(':')[0]) * 60 + parseInt(task.time.split(':')[1])) / 30 * 60 / 2;
-                const heightPx = task.duration * 60 / 2;
-                block.style.top = topPx + 'px';
-                block.style.height = heightPx + 'px';
-                block.innerHTML = '<span>' + task.name + '</span><button onclick="deleteTask(\'' + task.id + '\')">×</button>';
-                grid.appendChild(block);
-            });
-        }
-
-        // 新增任務
-        function addTask() {
-            const name = document.getElementById('taskName').value.trim();
-            const time = document.getElementById('startTime').value;
-            const duration = parseFloat(document.getElementById('duration').value);
-
-            if (!name) {
-                alert('請輸入任務名稱');
-                return;
-            }
-
-            const task = {
-                id: Date.now() + Math.random(),
-                date: currentDate.toISOString().split('T')[0],
-                name: name,
-                time: time,
-                duration: duration
-            };
-
-            tasks.push(task);
-            saveTasks();
-            document.getElementById('taskName').value = '';
-            renderSchedule();
-            alert('已新增任務');
-        }
-
-        // 刪除任務
-        function deleteTask(id) {
-            if (confirm('確定要刪除嗎？')) {
-                tasks = tasks.filter(t => t.id !== id);
-                saveTasks();
-                renderSchedule();
-            }
-        }
-
-        // 本地儲存
-        function saveTasks() {
-            localStorage.setItem('tech_vibe_tasks', JSON.stringify(tasks));
-        }
-
-        function loadTasks() {
-            const data = localStorage.getItem('tech_vibe_tasks');
-            if (data) {
-                tasks = JSON.parse(data);
-            }
-        }
-
-        // 啟動
-        window.addEventListener('load', init);
-    </script>
 </body>
 </html>
