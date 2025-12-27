@@ -122,7 +122,10 @@ hr{border:none;border-top:1px solid #333;margin:16px 0}
 <h3>新增任務</h3>
 <div class="form-group">
 <label>任務名稱</label>
-<input type="text" id="tn" placeholder="輸入任務名稱">
+<div style="display:flex;gap:4px">
+<input type="text" id="tn" placeholder="輸入任務名稱" style="flex:1">
+<button style="width:auto;padding:8px;background:#667eea" onclick="openAIModal()" title="AI輔助分解">✨</button>
+</div>
 </div>
 <div class="form-group">
 <label>開始時間</label>
@@ -201,8 +204,78 @@ hr{border:none;border-top:1px solid #333;margin:16px 0}
 <button class="btn-celebrate" onclick="closeCelebrate()">太好了</button>
 </div>
 
+<div class="modal" id="aiModal">
+<div class="modal-content" style="width:90%;max-width:500px">
+<h2>✨ AI 任務分解助手</h2>
+<div class="form-group">
+<label>輸入你的大任務</label>
+<textarea id="aiInput" placeholder="例如：準備跨年派對，邀請朋友，佈置場地，準備食物和飲料" style="min-height:80px;margin-bottom:8px"></textarea>
+</div>
+<div id="aiLoading" style="display:none;text-align:center;color:#888;padding:16px">
+<p>⏳ AI 正在分解你的任務中...</p>
+</div>
+<div id="aiResult" style="display:none;max-height:300px;overflow-y:auto;background:#1a1a1a;border:1px solid #444;border-radius:6px;padding:12px;margin-bottom:16px">
+<p id="aiOutput" style="white-space:pre-wrap;line-height:1.6;color:#e0e0e0"></p>
+</div>
+<div class="modal-buttons">
+<button class="btn-cancel" onclick="closeAIModal()">取消</button>
+<button class="btn-add" onclick="analyzeWithAI()" id="aiAnalyzeBtn">分析任務</button>
+</div>
+</div>
+</div>
+
 <script>
 let tasks=[],countdowns=[],d=new Date(),editingId=null,dragData=null;
+
+const API_URL = 'http://localhost:3000';
+
+function openAIModal(){
+  document.getElementById('aiModal').classList.add('show');
+  document.getElementById('aiInput').focus();
+}
+
+function closeAIModal(){
+  document.getElementById('aiModal').classList.remove('show');
+  document.getElementById('aiInput').value='';
+  document.getElementById('aiResult').style.display='none';
+  document.getElementById('aiLoading').style.display='none';
+}
+
+async function analyzeWithAI(){
+  let taskDesc = document.getElementById('aiInput').value.trim();
+  if(!taskDesc) return alert('請輸入任務描述');
+  
+  let btn = document.getElementById('aiAnalyzeBtn');
+  btn.disabled = true;
+  btn.textContent = '分析中...';
+  
+  document.getElementById('aiLoading').style.display='block';
+  document.getElementById('aiResult').style.display='none';
+  
+  try {
+    let response = await fetch(API_URL + '/api/decompose', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({taskDescription: taskDesc})
+    });
+    
+    let data = await response.json();
+    document.getElementById('aiLoading').style.display='none';
+    
+    if(data.status === 'success'){
+      document.getElementById('aiOutput').textContent = data.data.output;
+      document.getElementById('aiResult').style.display='block';
+    } else {
+      alert('AI 分析失敗：' + (data.error || '未知錯誤'));
+    }
+  } catch(e){
+    document.getElementById('aiLoading').style.display='none';
+    alert('無法連接到AI服務：' + e.message + '\n\n請確保後端服務正在運行：\ncd backend && npm start');
+  }
+  
+  btn.disabled = false;
+  btn.textContent = '分析任務';
+}
 
 function init(){
   let s=localStorage.getItem('tasks');
@@ -548,6 +621,9 @@ function nm(){d.setMonth(d.getMonth()+1);ren();}
 document.addEventListener('click',(e)=>{
   if(e.target===document.getElementById('modal')){
     closeModal();
+  }
+  if(e.target===document.getElementById('aiModal')){
+    closeAIModal();
   }
 });
 
