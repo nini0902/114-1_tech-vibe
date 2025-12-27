@@ -20,6 +20,8 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#4a90e2}
 textarea{resize:vertical;min-height:60px}
 .btn-add{background:#4a90e2;color:white;border:none!important}
 .btn-add:hover{background:#357abd!important}
+.btn-del-cd{background:#d9534f;color:white;border:none!important;width:auto;padding:6px 12px;font-size:12px}
+.btn-del-cd:hover{background:#c9423f!important}
 .schedule-head{padding:16px;border-bottom:1px solid #333}
 .schedule{display:flex;flex:1;overflow:hidden}
 .times{width:60px;background:#0d0d0d;border-right:1px solid #333;overflow-y:auto}
@@ -39,6 +41,20 @@ textarea{resize:vertical;min-height:60px}
 .task-memo{font-size:9px;opacity:0.8;white-space:nowrap;overflow:ellipsis}
 .task-resize{width:100%;height:4px;background:rgba(255,255,255,0.3);cursor:ns-resize;position:absolute;bottom:0;left:0;right:0}
 .task-resize:hover{background:rgba(255,255,255,0.6)}
+.countdown-section{background:linear-gradient(135deg,#1a3a4a,#2a4a5a);border:1px solid #4a90e2;border-radius:8px;padding:16px;margin-bottom:16px;box-shadow:0 4px 12px rgba(74,144,226,0.2)}
+.countdown-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.countdown-header h3{font-size:14px;font-weight:600;color:#4a90e2;margin:0}
+.countdown-list{max-height:300px;overflow-y:auto}
+.countdown-item{background:#2a2a2a;border:1px solid #444;border-radius:6px;padding:12px;margin-bottom:10px;transition:0.2s}
+.countdown-item:hover{border-color:#4a90e2;background:#333}
+.countdown-title{font-size:13px;font-weight:600;color:#e0e0e0;margin-bottom:6px}
+.countdown-days{font-size:24px;font-weight:700;color:#4a90e2;margin:6px 0;text-align:center}
+.countdown-date{font-size:11px;color:#888;text-align:center;margin-bottom:8px}
+.countdown-delete{width:100%;font-size:11px;padding:4px}
+.countdown-form{background:#2a2a2a;border:1px solid #444;border-radius:6px;padding:12px;margin-top:12px}
+.countdown-form-title{font-size:12px;color:#aaa;font-weight:600;margin-bottom:8px}
+.countdown-form input{margin-bottom:8px}
+.countdown-form button{margin:0}
 .modal{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);z-index:1000;align-items:center;justify-content:center}
 .modal.show{display:flex}
 .modal-content{background:#2a2a2a;border-radius:8px;padding:24px;width:90%;max-width:400px;max-height:80vh;overflow-y:auto;box-shadow:0 10px 40px rgba(0,0,0,0.8);border:1px solid #444;color:#e0e0e0}
@@ -61,18 +77,8 @@ textarea{resize:vertical;min-height:60px}
 .celebrate .emoji{font-size:48px;margin-bottom:16px}
 .btn-celebrate{background:#4caf50;color:white;border:none;padding:12px 32px;border-radius:6px;cursor:pointer;font-size:16px;font-weight:600;transition:0.2s}
 .btn-celebrate:hover{background:#45a049}
-@keyframes celebrateIn{
-  0%{transform:translate(-50%,-50%) scale(0.5);opacity:0}
-  100%{transform:translate(-50%,-50%) scale(1);opacity:1}
-}
-@keyframes celebrate{
-  0%{transform:rotate(0deg) scale(1)}
-  25%{transform:rotate(-5deg) scale(1.1)}
-  50%{transform:rotate(5deg) scale(1.1)}
-  75%{transform:rotate(-5deg) scale(1.1)}
-  100%{transform:rotate(0deg) scale(1)}
-}
-.celebrate.animate{animation:celebrate 0.6s ease-in-out infinite}
+@keyframes celebrateIn{0%{transform:translate(-50%,-50%) scale(0.5);opacity:0}100%{transform:translate(-50%,-50%) scale(1);opacity:1}}
+@keyframes celebrate{0%{transform:rotate(0deg) scale(1)}25%{transform:rotate(-5deg) scale(1.1)}50%{transform:rotate(5deg) scale(1.1)}75%{transform:rotate(-5deg) scale(1.1)}100%{transform:rotate(0deg) scale(1)}}
 h3{font-size:14px;margin-bottom:12px;color:#fff}
 hr{border:none;border-top:1px solid #333;margin:16px 0}
 </style>
@@ -83,6 +89,22 @@ hr{border:none;border-top:1px solid #333;margin:16px 0}
 
 <div class="main">
 <div class="left">
+<div class="countdown-section">
+<div class="countdown-header">
+<h3>📅 重大倒數</h3>
+<button style="width:auto;padding:4px 8px;font-size:11px" onclick="toggleCountdownForm()">＋</button>
+</div>
+<div class="countdown-list" id="cdList"></div>
+<div class="countdown-form" id="cdForm" style="display:none">
+<div class="countdown-form-title">新增倒數事件</div>
+<input type="text" id="cdTitle" placeholder="事件名稱 (如：跨年)">
+<input type="date" id="cdDate">
+<button class="btn-add" onclick="addCountdown()">新增倒數</button>
+</div>
+</div>
+
+<hr>
+
 <div>
 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
 <button onclick="pm()" style="width:40px;padding:6px">←</button>
@@ -181,14 +203,19 @@ hr{border:none;border-top:1px solid #333;margin:16px 0}
 </div>
 
 <script>
-let tasks=[],d=new Date(),editingId=null,dragData=null;
+let tasks=[],countdowns=[],d=new Date(),editingId=null,dragData=null;
 
 function init(){
   let s=localStorage.getItem('tasks');
   if(s)tasks=JSON.parse(s);
+  let cd=localStorage.getItem('countdowns');
+  if(cd)countdowns=JSON.parse(cd);
   initSt();
   initEditSt();
   ren();
+  renderCountdowns();
+  updateCountdowns();
+  setInterval(updateCountdowns,60000);
 }
 
 function initSt(){
@@ -216,6 +243,56 @@ function initEditSt(){
       st.appendChild(o);
     }
   }
+}
+
+function toggleCountdownForm(){
+  let f=document.getElementById('cdForm');
+  f.style.display=f.style.display==='none'?'block':'none';
+}
+
+function addCountdown(){
+  let title=document.getElementById('cdTitle').value.trim();
+  let date=document.getElementById('cdDate').value;
+  if(!title||!date)return alert('請輸入事件名稱和日期');
+  countdowns.push({id:Date.now(),title:title,date:date});
+  saveCountdowns();
+  document.getElementById('cdTitle').value='';
+  document.getElementById('cdDate').value='';
+  document.getElementById('cdForm').style.display='none';
+  renderCountdowns();
+}
+
+function deleteCountdown(id){
+  if(!confirm('確定刪除?'))return;
+  countdowns=countdowns.filter(x=>x.id!==id);
+  saveCountdowns();
+  renderCountdowns();
+}
+
+function renderCountdowns(){
+  let list=document.getElementById('cdList');
+  list.innerHTML='';
+  countdowns.forEach(cd=>{
+    let div=document.createElement('div');
+    div.className='countdown-item';
+    let days=Math.ceil((new Date(cd.date)-new Date())/(1000*60*60*24));
+    let color=days<=0?'#d9534f':days<=7?'#ff9800':'#4a90e2';
+    div.innerHTML=`
+      <div class="countdown-title">${cd.title}</div>
+      <div class="countdown-date">${cd.date}</div>
+      <div class="countdown-days" style="color:${color}">${Math.max(0,days)}</div>
+      <button class="btn-del-cd" onclick="deleteCountdown(${cd.id})">刪除</button>
+    `;
+    list.appendChild(div);
+  });
+}
+
+function updateCountdowns(){
+  renderCountdowns();
+}
+
+function saveCountdowns(){
+  localStorage.setItem('countdowns',JSON.stringify(countdowns));
 }
 
 function ren(){
