@@ -2,38 +2,55 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>Tech Vibe</title>
+<title>Tech Vibe - 日程規劃</title>
 <style>
-body{margin:0;padding:0;font-family:Arial;background:#f5f5f5}
-.header{background:#667eea;color:white;padding:16px;text-align:center}
-.main{display:flex;height:calc(100vh - 60px);margin-top:60px}
-.left{width:300px;background:white;padding:16px;overflow-y:auto;border-right:1px solid #ddd}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Arial;background:#f5f5f5}
+.header{background:linear-gradient(135deg,#667eea,#764ba2);color:white;padding:20px;text-align:center}
+.main{display:flex;height:calc(100vh - 80px);margin-top:80px}
+.left{width:320px;background:white;padding:16px;overflow-y:auto;border-right:1px solid #ddd}
 .right{flex:1;background:white;display:flex;flex-direction:column}
 .calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin:16px 0}
-button{padding:8px;border:1px solid #ddd;background:white;cursor:pointer;width:100%;margin:4px 0}
-input,select{width:100%;padding:8px;margin:8px 0;border:1px solid #ddd}
-.btn-add{background:#667eea;color:white;border:none}
+button{padding:8px;border:1px solid #ddd;background:white;cursor:pointer;width:100%;margin:4px 0;border-radius:4px;transition:0.2s}
+button:hover{border-color:#667eea;background:#f5f5f5}
+button.selected{background:#667eea;color:white;border-color:#667eea}
+input,select,textarea{width:100%;padding:8px;margin:8px 0;border:1px solid #ddd;border-radius:4px;font-family:Arial;font-size:13px}
+textarea{resize:vertical;min-height:60px}
+.btn-add{background:#667eea;color:white;border:none!important}
+.btn-add:hover{background:#5568d3!important}
 .schedule-head{padding:16px;border-bottom:1px solid #ddd}
-.schedule{display:flex;flex:1}
+.schedule{display:flex;flex:1;overflow:hidden}
 .times{width:60px;background:#f9f9f9;border-right:1px solid #ddd;overflow-y:auto}
-.time{height:60px;display:flex;align-items:center;justify-content:center;font-size:11px;border-bottom:1px solid #eee}
-.grid{flex:1;position:relative;overflow-y:auto;background:linear-gradient(to bottom,#f0f0f0 1px,transparent 1px);background-size:100% 60px}
-.task{position:absolute;left:4px;right:4px;background:#667eea;color:white;padding:4px;border-radius:3px;font-size:12px;display:flex;justify-content:space-between}
+.time{height:30px;display:flex;align-items:center;justify-content:center;font-size:10px;border-bottom:1px solid #eee;color:#666}
+.grid{flex:1;position:relative;overflow-y:auto;background:linear-gradient(to bottom,#f0f0f0 1px,transparent 1px);background-size:100% 30px}
+.task{position:absolute;left:4px;right:4px;background:#667eea;color:white;padding:4px;border-radius:3px;font-size:12px;font-weight:600;cursor:grab;border:1px solid #4a5fcf;overflow:hidden;display:flex;align-items:center;justify-content:space-between;user-select:none;box-shadow:0 2px 4px rgba(0,0,0,0.2);transition:0.2s}
+.task:hover{box-shadow:0 4px 8px rgba(0,0,0,0.3);background:#5568d3}
+.task.dragging{opacity:0.7;cursor:grabbing}
+.task-info{flex:1;overflow:hidden}
+.task-name{font-weight:600;white-space:nowrap;overflow:ellipsis}
+.task-time{font-size:10px;opacity:0.9}
+.task-handle{width:8px;height:20px;background:rgba(255,255,255,0.4);border-radius:2px;margin-left:4px;cursor:ns-resize}
+.task-del{background:none;border:none;color:white;cursor:pointer;padding:0;margin-left:4px;font-size:14px;width:auto!important}
+.task-del:hover{color:#ffb3b3}
+h3{font-size:14px;margin-bottom:12px;color:#333}
+hr{border:none;border-top:1px solid #ddd;margin:16px 0}
+.form-group{margin-bottom:12px}
+label{display:block;font-size:12px;font-weight:600;color:#666;margin-bottom:4px}
 </style>
 </head>
 <body>
 
-<div class="header"><h1 style="margin:0">Tech Vibe 日程規劃</h1></div>
+<div class="header"><h1>Tech Vibe 日程規劃工具</h1></div>
 
 <div class="main">
 <div class="left">
 <div>
-<div style="display:flex;justify-content:space-between;margin-bottom:16px">
-<button onclick="pm()" style="width:40px">←</button>
-<span id="ml" style="font-weight:bold;flex:1;text-align:center">月份</span>
-<button onclick="nm()" style="width:40px">→</button>
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+<button onclick="pm()" style="width:40px;padding:6px">←</button>
+<span id="ml" style="font-weight:bold;flex:1;text-align:center;font-size:14px">月份</span>
+<button onclick="nm()" style="width:40px;padding:6px">→</button>
 </div>
-<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:16px;font-size:12px;font-weight:bold;text-align:center">
+<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:8px;font-size:11px;font-weight:bold;text-align:center;color:#666">
 <div>日</div><div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div>六</div>
 </div>
 <div id="cal" class="calendar"></div>
@@ -43,8 +60,16 @@ input,select{width:100%;padding:8px;margin:8px 0;border:1px solid #ddd}
 
 <div>
 <h3>新增任務</h3>
-<input type="text" id="tn" placeholder="名稱">
+<div class="form-group">
+<label>任務名稱</label>
+<input type="text" id="tn" placeholder="輸入任務名稱">
+</div>
+<div class="form-group">
+<label>開始時間</label>
 <select id="st"></select>
+</div>
+<div class="form-group">
+<label>時長</label>
 <select id="dur">
 <option value="0.5">0.5小時</option>
 <option value="1">1小時</option>
@@ -53,14 +78,19 @@ input,select{width:100%;padding:8px;margin:8px 0;border:1px solid #ddd}
 <option value="3">3小時</option>
 <option value="4">4小時</option>
 </select>
-<button class="btn-add" onclick="add()">新增</button>
+</div>
+<div class="form-group">
+<label>備註</label>
+<textarea id="memo" placeholder="補充說明 (可選)"></textarea>
+</div>
+<button class="btn-add" onclick="add()">新增任務</button>
 </div>
 </div>
 
 <div class="right">
 <div class="schedule-head">
-<h2 id="dl" style="margin:0">今日</h2>
-<p id="hl" style="margin:8px 0 0 0;font-size:13px;color:#666">0小時</p>
+<h2 id="dl" style="margin:0;font-size:18px">今日</h2>
+<p id="hl" style="margin:8px 0 0 0;font-size:13px;color:#666">規劃: 0小時</p>
 </div>
 
 <div class="schedule">
@@ -71,18 +101,37 @@ input,select{width:100%;padding:8px;margin:8px 0;border:1px solid #ddd}
 </div>
 
 <script>
-let t=[],d=new Date();
+let tasks=[],d=new Date(),dragging=null,dragStart=0;
+
 function init(){
-  let s=localStorage.getItem('t');
-  if(s)t=JSON.parse(s);
+  let s=localStorage.getItem('tasks');
+  if(s)tasks=JSON.parse(s);
+  initSt();
   ren();
 }
+
+function initSt(){
+  let st=document.getElementById('st');
+  for(let h=0;h<24;h++){
+    for(let m=0;m<60;m+=30){
+      let t=(h<10?'0':'')+h+':'+(m<10?'0':'')+m;
+      let o=document.createElement('option');
+      o.value=t;
+      o.textContent=t;
+      st.appendChild(o);
+    }
+  }
+  st.value='09:00';
+}
+
 function ren(){
   renm();rcal();rtime();rsch();
 }
+
 function renm(){
   document.getElementById('ml').textContent=d.getFullYear()+'年'+(d.getMonth()+1)+'月';
 }
+
 function rcal(){
   let y=d.getFullYear(),m=d.getMonth(),f=new Date(y,m,1).getDay(),n=new Date(y,m+1,0).getDate();
   let c=document.getElementById('cal');
@@ -92,11 +141,12 @@ function rcal(){
     let b=document.createElement('button');
     b.textContent=j;
     let z=new Date(y,m,j).toISOString().split('T')[0];
-    if(z===d.toISOString().split('T')[0])b.style.background='#667eea',b.style.color='white';
+    if(z===d.toISOString().split('T')[0])b.className='selected';
     b.onclick=()=>{d=new Date(y,m,j);ren();};
     c.appendChild(b);
   }
 }
+
 function rtime(){
   let c=document.getElementById('tc');
   c.innerHTML='';
@@ -105,58 +155,156 @@ function rtime(){
     e.className='time';
     e.textContent=(h<10?'0':'')+h+':00';
     c.appendChild(e);
+    let e2=document.createElement('div');
+    e2.className='time';
+    c.appendChild(e2);
   }
 }
+
 function rsch(){
   let z=d.toISOString().split('T')[0];
   document.getElementById('dl').textContent=d.toLocaleDateString('zh-Hant',{year:'numeric',month:'long',day:'numeric',weekday:'long'});
-  let ts=t.filter(x=>x.z===z);
+  let ts=tasks.filter(x=>x.z===z);
   let h=ts.reduce((a,x)=>a+x.dur,0);
-  document.getElementById('hl').textContent=h+'小時';
+  document.getElementById('hl').textContent='規劃: '+h+'小時';
   let g=document.getElementById('gc');
   g.innerHTML='';
   ts.forEach(x=>{
     let [hh,mm]=x.tm.split(':').map(Number);
-    let tp=(hh*60+mm)/30*60/2;
+    let tp=(hh*60+mm)/30*30;
     let ht=x.dur*30;
     let e=document.createElement('div');
     e.className='task';
     e.style.top=tp+'px';
     e.style.height=ht+'px';
-    e.innerHTML='<span>'+x.n+'</span><button style="background:none;border:none;color:white;cursor:pointer" onclick="del('+x.id+')">×</button>';
+    e.dataset.id=x.id;
+    e.draggable=true;
+    
+    let info=document.createElement('div');
+    info.className='task-info';
+    
+    let name=document.createElement('div');
+    name.className='task-name';
+    name.textContent=x.nm;
+    name.title=x.nm;
+    info.appendChild(name);
+    
+    let time=document.createElement('div');
+    time.className='task-time';
+    time.textContent=x.tm+' - '+getEndTime(x.tm,x.dur);
+    info.appendChild(time);
+    
+    if(x.m){
+      let memo=document.createElement('div');
+      memo.style.fontSize='9px';
+      memo.style.opacity='0.8';
+      memo.style.whiteSpace='nowrap';
+      memo.style.overflow='ellipsis';
+      memo.textContent=x.m;
+      info.appendChild(memo);
+    }
+    
+    e.appendChild(info);
+    
+    let handle=document.createElement('div');
+    handle.className='task-handle';
+    handle.onmousedown=(ev)=>startResize(ev,x.id);
+    e.appendChild(handle);
+    
+    let del=document.createElement('button');
+    del.className='task-del';
+    del.textContent='×';
+    del.onclick=()=>delTask(x.id);
+    e.appendChild(del);
+    
+    e.addEventListener('dragstart',(ev)=>dragStart={id:x.id,py:ev.clientY});
+    e.addEventListener('dragend',()=>dragging=null);
+    
     g.appendChild(e);
   });
+  
+  g.addEventListener('dragover',(ev)=>{ev.preventDefault();ev.dataTransfer.dropEffect='move';});
+  g.addEventListener('drop',(ev)=>{
+    ev.preventDefault();
+    if(!dragStart)return;
+    let rect=g.getBoundingClientRect();
+    let y=ev.clientY-rect.top+g.scrollTop;
+    let slot=Math.round(y/30)*30;
+    let mins=Math.floor(slot/30);
+    let h=Math.floor(mins/2);
+    let m=mins%2*30;
+    let tm=(h<10?'0':'')+h+':'+(m<10?'0':'')+m;
+    let t=tasks.find(x=>x.id===dragStart.id);
+    if(t){t.tm=tm;save();rsch();}
+    dragStart=null;
+  });
 }
-function initst(){
-  let s=document.getElementById('st');
-  for(let h=0;h<24;h++){
-    for(let m=0;m<60;m+=30){
-      let tm=(h<10?'0':'')+h+':'+(m<10?'0':'')+m;
-      let o=document.createElement('option');
-      o.value=tm;
-      o.textContent=tm;
-      s.appendChild(o);
-    }
+
+function startResize(e,id){
+  e.preventDefault();
+  let t=tasks.find(x=>x.id===id);
+  if(!t)return;
+  let sy=e.clientY;
+  let oh=t.dur;
+  
+  function move(e){
+    let dy=e.clientY-sy;
+    let nh=Math.max(0.5,Math.round((oh*60+dy)/30)*0.5);
+    t.dur=nh;
+    rsch();
   }
-  s.value='09:00';
+  
+  function up(){
+    save();
+    document.removeEventListener('mousemove',move);
+    document.removeEventListener('mouseup',up);
+  }
+  
+  document.addEventListener('mousemove',move);
+  document.addEventListener('mouseup',up);
 }
+
+function getEndTime(tm,dur){
+  let [h,m]=tm.split(':').map(Number);
+  let total=h*60+m+dur*60;
+  let eh=Math.floor(total/60)%24;
+  let em=total%60;
+  return (eh<10?'0':'')+eh+':'+(em<10?'0':'')+em;
+}
+
 function add(){
   let n=document.getElementById('tn').value;
   if(!n)return alert('輸入名稱');
-  let x={id:Date.now(),n:n,z:d.toISOString().split('T')[0],tm:document.getElementById('st').value,dur:parseFloat(document.getElementById('dur').value)};
-  t.push(x);
-  localStorage.setItem('t',JSON.stringify(t));
+  let x={
+    id:Date.now(),
+    nm:n,
+    z:d.toISOString().split('T')[0],
+    tm:document.getElementById('st').value,
+    dur:parseFloat(document.getElementById('dur').value),
+    m:document.getElementById('memo').value
+  };
+  tasks.push(x);
+  save();
   document.getElementById('tn').value='';
+  document.getElementById('memo').value='';
   rsch();
 }
-function del(i){
-  t=t.filter(x=>x.id!==i);
-  localStorage.setItem('t',JSON.stringify(t));
+
+function delTask(i){
+  if(!confirm('確定刪除?'))return;
+  tasks=tasks.filter(x=>x.id!==i);
+  save();
   rsch();
 }
+
+function save(){
+  localStorage.setItem('tasks',JSON.stringify(tasks));
+}
+
 function pm(){d.setMonth(d.getMonth()-1);ren();}
 function nm(){d.setMonth(d.getMonth()+1);ren();}
-window.addEventListener('load',()=>{initst();init();});
+
+window.addEventListener('load',init);
 </script>
 
 </body>
