@@ -49,12 +49,14 @@ class AppState {
 
   // 反序列化
   factory AppState.fromJson(Map<String, dynamic> json) {
-    final tasksList = (json['tasks'] as List<dynamic>)
-        .map((item) => Task.fromJson(item as Map<String, dynamic>))
-        .toList();
-    final containerIds = (json['tasksInContainerId'] as List<dynamic>)
-        .map((id) => id as String)
-        .toSet();
+    final tasksList = (json['tasks'] as List<dynamic>?)
+            ?.map((item) => Task.fromJson(item as Map<String, dynamic>))
+            .toList() ??
+        [];
+    final containerIds = (json['tasksInContainerId'] as List<dynamic>?)
+            ?.map((id) => id as String)
+            .toSet() ??
+        {};
     final countdownsList = (json['countdowns'] as List<dynamic>?)
             ?.map((item) => Countdown.fromJson(item as Map<String, dynamic>))
             .toList() ??
