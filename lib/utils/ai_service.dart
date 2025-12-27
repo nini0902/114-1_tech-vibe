@@ -2,6 +2,11 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class AIService {
+  /// 後端 URL 配置
+  /// 開發時：http://localhost:3000
+  /// 生產時：設定為實際的後端 URL（例如 Vercel、Heroku 等）
+  /// 
+  /// 修改此值以指向你的後端服務
   static const String _backendUrl = 'http://localhost:3000';
   static const String _decomposeEndpoint = '/api/decompose';
 
