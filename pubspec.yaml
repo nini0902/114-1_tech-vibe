@@ -1,0 +1,24 @@
+name: tech_vibe
+description: 一日時間視覺化工具 - Flutter Web 版本
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  provider: ^6.0.0
+  shared_preferences: ^2.2.0
+  intl: ^0.18.0
+  uuid: ^4.0.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_linter: ^2.0.0
+
+flutter:
+  uses-material-design: true
