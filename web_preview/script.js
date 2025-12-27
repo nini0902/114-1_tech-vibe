@@ -17,14 +17,6 @@ class Task {
         return 'task_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
     }
 
-    getEndTime() {
-        const [hours, minutes] = this.startTime.split(':').map(Number);
-        const totalMinutes = hours * 60 + minutes + (this.duration * 60);
-        const endHours = Math.floor(totalMinutes / 60) % 24;
-        const endMinutes = totalMinutes % 60;
-        return `${String(endHours).padStart(2, '0')}:${String(endMinutes).padStart(2, '0')}`;
-    }
-
     getTopPosition() {
         const [hours, minutes] = this.startTime.split(':').map(Number);
         const totalSlots = (hours * 60 + minutes) / 30;
@@ -115,31 +107,51 @@ class AppState {
 // ============ 全局狀態和 DOM 元素 ============
 const appState = new AppState();
 
-const prevMonthBtn = document.getElementById('prevMonth');
-const nextMonthBtn = document.getElementById('nextMonth');
-const monthYearDisplay = document.getElementById('monthYear');
-const calendarGrid = document.getElementById('calendar');
-const scheduleGrid = document.getElementById('scheduleGrid');
-const selectedDateDisplay = document.getElementById('selectedDate');
-const totalHoursDisplay = document.getElementById('totalHours');
+let prevMonthBtn, nextMonthBtn, monthYearDisplay, calendarGrid, scheduleGrid;
+let selectedDateDisplay, totalHoursDisplay;
+let taskNameInput, startTimeSelect, durationSelect, addTaskBtn;
 
-const taskNameInput = document.getElementById('taskName');
-const startTimeSelect = document.getElementById('startTime');
-const durationSelect = document.getElementById('duration');
-const addTaskBtn = document.getElementById('addTaskBtn');
+function initializeDOMElements() {
+    prevMonthBtn = document.getElementById('prevMonth');
+    nextMonthBtn = document.getElementById('nextMonth');
+    monthYearDisplay = document.getElementById('monthYear');
+    calendarGrid = document.getElementById('calendar');
+    scheduleGrid = document.getElementById('scheduleGrid');
+    selectedDateDisplay = document.getElementById('selectedDate');
+    totalHoursDisplay = document.getElementById('totalHours');
+
+    taskNameInput = document.getElementById('taskName');
+    startTimeSelect = document.getElementById('startTime');
+    durationSelect = document.getElementById('duration');
+    addTaskBtn = document.getElementById('addTaskBtn');
+}
 
 let draggedTask = null;
 
 // ============ 初始化 ============
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOMContentLoaded 觸發');
+    
+    initializeDOMElements();
     initializeTimeSelects();
     renderCalendar();
     renderSchedule();
     setupEventListeners();
+    
     console.log('✅ Tech Vibe 應用已加載');
 });
 
 function initializeTimeSelects() {
+    console.log('初始化時間選擇器...');
+    
+    if (!startTimeSelect) {
+        console.error('startTimeSelect 不存在');
+        return;
+    }
+    
+    // 清空現有選項
+    startTimeSelect.innerHTML = '';
+    
     for (let h = 0; h < 24; h++) {
         for (let m = 0; m < 60; m += 30) {
             const time = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
@@ -149,64 +161,85 @@ function initializeTimeSelects() {
             startTimeSelect.appendChild(option);
         }
     }
+    
     startTimeSelect.value = '09:00';
+    console.log('時間選擇器初始化完成');
 }
 
 function setupEventListeners() {
-    prevMonthBtn.addEventListener('click', () => {
-        appState.currentMonth.setMonth(appState.currentMonth.getMonth() - 1);
-        renderCalendar();
-    });
+    console.log('設置事件監聽...');
+    
+    if (prevMonthBtn) {
+        prevMonthBtn.addEventListener('click', () => {
+            appState.currentMonth.setMonth(appState.currentMonth.getMonth() - 1);
+            renderCalendar();
+        });
+    }
 
-    nextMonthBtn.addEventListener('click', () => {
-        appState.currentMonth.setMonth(appState.currentMonth.getMonth() + 1);
-        renderCalendar();
-    });
+    if (nextMonthBtn) {
+        nextMonthBtn.addEventListener('click', () => {
+            appState.currentMonth.setMonth(appState.currentMonth.getMonth() + 1);
+            renderCalendar();
+        });
+    }
 
-    addTaskBtn.addEventListener('click', handleAddTask);
-    taskNameInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') handleAddTask();
-    });
+    if (addTaskBtn) {
+        addTaskBtn.addEventListener('click', handleAddTask);
+    }
+
+    if (taskNameInput) {
+        taskNameInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') handleAddTask();
+        });
+    }
+    
+    console.log('事件監聽設置完成');
 }
 
 // ============ 月曆渲染 ============
 function renderCalendar() {
+    console.log('渲染月曆');
+    
     const year = appState.currentMonth.getFullYear();
     const month = appState.currentMonth.getMonth();
 
     // 更新月份顯示
-    monthYearDisplay.textContent = new Date(year, month).toLocaleDateString('zh-Hant', {
-        year: 'numeric',
-        month: 'long'
-    });
+    if (monthYearDisplay) {
+        monthYearDisplay.textContent = new Date(year, month).toLocaleDateString('zh-Hant', {
+            year: 'numeric',
+            month: 'long'
+        });
+    }
 
     // 清空日期
-    calendarGrid.innerHTML = '';
+    if (calendarGrid) {
+        calendarGrid.innerHTML = '';
 
-    // 獲取該月的第一天和天數
-    const firstDay = new Date(year, month, 1).getDay();
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
-    const daysInPrevMonth = new Date(year, month, 0).getDate();
+        // 獲取該月的第一天和天數
+        const firstDay = new Date(year, month, 1).getDay();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        const daysInPrevMonth = new Date(year, month, 0).getDate();
 
-    // 添加前一月的灰色日期
-    for (let i = firstDay - 1; i >= 0; i--) {
-        const day = daysInPrevMonth - i;
-        const date = new Date(year, month - 1, day);
-        createDayElement(date, true);
-    }
+        // 添加前一月的灰色日期
+        for (let i = firstDay - 1; i >= 0; i--) {
+            const day = daysInPrevMonth - i;
+            const date = new Date(year, month - 1, day);
+            createDayElement(date, true);
+        }
 
-    // 添加本月日期
-    for (let day = 1; day <= daysInMonth; day++) {
-        const date = new Date(year, month, day);
-        createDayElement(date, false);
-    }
+        // 添加本月日期
+        for (let day = 1; day <= daysInMonth; day++) {
+            const date = new Date(year, month, day);
+            createDayElement(date, false);
+        }
 
-    // 添加下一月的灰色日期
-    const totalCells = calendarGrid.children.length;
-    const remainingCells = 42 - totalCells; // 6 週 × 7 天
-    for (let day = 1; day <= remainingCells; day++) {
-        const date = new Date(year, month + 1, day);
-        createDayElement(date, true);
+        // 添加下一月的灰色日期
+        const totalCells = calendarGrid.children.length;
+        const remainingCells = 42 - totalCells; // 6 週 × 7 天
+        for (let day = 1; day <= remainingCells; day++) {
+            const date = new Date(year, month + 1, day);
+            createDayElement(date, true);
+        }
     }
 }
 
@@ -229,70 +262,67 @@ function createDayElement(date, isOtherMonth) {
         dayEl.classList.add('today');
     }
 
-    dayEl.addEventListener('click', () => {
-        appState.selectedDate = dateString;
-        renderCalendar();
-        renderSchedule();
-    });
+    if (!isOtherMonth) {
+        dayEl.addEventListener('click', () => {
+            appState.selectedDate = dateString;
+            renderCalendar();
+            renderSchedule();
+        });
+    }
 
-    calendarGrid.appendChild(dayEl);
+    if (calendarGrid) {
+        calendarGrid.appendChild(dayEl);
+    }
 }
 
 // ============ 日程表渲染 ============
 function renderSchedule() {
+    console.log('渲染日程表，日期：', appState.selectedDate);
+    
     // 更新日期顯示
-    const dateObj = new Date(appState.selectedDate);
-    selectedDateDisplay.textContent = dateObj.toLocaleDateString('zh-Hant', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-        weekday: 'long'
-    });
-
-    // 更新總時數
-    const totalHours = appState.getTotalHoursForDate(appState.selectedDate);
-    totalHoursDisplay.textContent = `今日規劃：${totalHours.toFixed(1)} 小時`;
-
-    // 渲染時間標籤和槽位
-    const timeLabelsContainer = document.querySelector('.time-labels');
-    timeLabelsContainer.innerHTML = '';
-
-    scheduleGrid.innerHTML = '';
-
-    // 生成 24 小時 × 2 (每 0.5 小時一個槽位)
-    const tasksForDate = appState.getTasksForDate(appState.selectedDate);
-
-    // 添加時間標籤
-    for (let h = 0; h < 24; h++) {
-        const labelEl = document.createElement('div');
-        labelEl.className = 'time-label hour';
-        labelEl.textContent = `${String(h).padStart(2, '0')}:00`;
-        timeLabelsContainer.appendChild(labelEl);
-
-        // 每小時之間的半點
-        const halfLabelEl = document.createElement('div');
-        halfLabelEl.className = 'time-label';
-        timeLabelsContainer.appendChild(halfLabelEl);
+    if (selectedDateDisplay) {
+        const dateObj = new Date(appState.selectedDate);
+        selectedDateDisplay.textContent = dateObj.toLocaleDateString('zh-Hant', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            weekday: 'long'
+        });
     }
 
-    // 設置日程網格高度
-    scheduleGrid.style.height = `${24 * SLOT_HEIGHT * 2}px`;
+    // 更新總時數
+    if (totalHoursDisplay) {
+        const totalHours = appState.getTotalHoursForDate(appState.selectedDate);
+        totalHoursDisplay.textContent = `今日規劃：${totalHours.toFixed(1)} 小時`;
+    }
 
-    // 渲染任務
-    tasksForDate.forEach(task => {
-        renderTask(task);
-    });
+    // 清空日程網格
+    if (scheduleGrid) {
+        scheduleGrid.innerHTML = '';
 
-    // 如果沒有任務，顯示提示
-    if (tasksForDate.length === 0) {
-        const emptyEl = document.createElement('div');
-        emptyEl.className = 'empty-state';
-        emptyEl.textContent = '點擊左側「新增任務」添加日程';
-        scheduleGrid.appendChild(emptyEl);
+        const tasksForDate = appState.getTasksForDate(appState.selectedDate);
+
+        // 設置日程網格高度
+        scheduleGrid.style.height = `${24 * SLOT_HEIGHT * 2}px`;
+
+        // 渲染任務
+        tasksForDate.forEach(task => {
+            renderTask(task);
+        });
+
+        // 如果沒有任務，顯示提示
+        if (tasksForDate.length === 0) {
+            const emptyEl = document.createElement('div');
+            emptyEl.className = 'empty-state';
+            emptyEl.textContent = '點擊左側「新增任務」添加日程';
+            scheduleGrid.appendChild(emptyEl);
+        }
     }
 }
 
 function renderTask(task) {
+    if (!scheduleGrid) return;
+    
     const taskEl = document.createElement('div');
     taskEl.className = 'task-item';
     taskEl.dataset.taskId = task.id;
@@ -327,6 +357,13 @@ function renderTask(task) {
 
 // ============ 新增任務 ============
 function handleAddTask() {
+    console.log('處理新增任務');
+    
+    if (!taskNameInput || !startTimeSelect || !durationSelect) {
+        console.error('輸入元素缺失');
+        return;
+    }
+    
     const name = taskNameInput.value.trim();
     const startTime = startTimeSelect.value;
     const duration = parseFloat(durationSelect.value);
@@ -392,3 +429,32 @@ style.textContent = `
     }
 `;
 document.head.appendChild(style);
+
+// 在 renderSchedule 函數之後添加時間標籤渲染
+function renderTimeLabels() {
+    const timeLabelsContainer = document.getElementById('timeLabels');
+    if (!timeLabelsContainer) {
+        console.error('timeLabels 容器不存在');
+        return;
+    }
+    
+    timeLabelsContainer.innerHTML = '';
+
+    for (let h = 0; h < 24; h++) {
+        const labelEl = document.createElement('div');
+        labelEl.className = 'time-label hour';
+        labelEl.textContent = `${String(h).padStart(2, '0')}:00`;
+        timeLabelsContainer.appendChild(labelEl);
+
+        const halfLabelEl = document.createElement('div');
+        halfLabelEl.className = 'time-label';
+        timeLabelsContainer.appendChild(halfLabelEl);
+    }
+}
+
+// 修改 renderSchedule 以包含時間標籤
+const originalRenderSchedule = renderSchedule;
+renderSchedule = function() {
+    originalRenderSchedule();
+    renderTimeLabels();
+};
