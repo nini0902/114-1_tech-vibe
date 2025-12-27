@@ -4,10 +4,13 @@ import 'providers/task_provider.dart';
 import 'screens/home_screen.dart';
 import 'utils/constants.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(
-    ChangeNotifierProvider(
-      create: (_) => TaskProvider(),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => TaskProvider()),
+      ],
       child: const MyApp(),
     ),
   );
