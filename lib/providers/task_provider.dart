@@ -17,7 +17,13 @@ class TaskProvider extends ChangeNotifier {
   final StorageService _storage = StorageService();
 
   TaskProvider() {
-    loadFromStorage();
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
+    final appState = await _storage.loadAppState();
+    _state = appState;
+    notifyListeners();
   }
 
   // 新增任務
